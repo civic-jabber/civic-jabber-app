@@ -28,7 +28,7 @@ The package uses `pip-compile` to lock dependencies. If you need to add a new
 dependency, simply update the appropriate `.in` file in the `requirements` folder and
 then run `make pip-compile`.
 
-## Running the UI localy
+## Running the UI locally
 
 To run the UI locally, you can use the following command:
 
