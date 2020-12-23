@@ -13,7 +13,6 @@ lint-python:
 lint-black:
 	black civic_jabber_app --check
 	black test_civic_jabber_app --check
-	black dags --check
 
 lint-ui:
 	cd ui && npx prettier --check .
@@ -25,14 +24,12 @@ tidy:
 tidy-python:
 	black civic_jabber_app
 	black test_civic_jabber_app
-	black dags
 
 tidy-ui:
 	cd ui && npx prettier --write .
 
 test:
 	pytest test_civic_jabber_app --cov=civic_jabber_app -vv -m "not slow"
-	python dags/states.py # Checks to make sure the DAG is valid
 
 ################
 # Install
