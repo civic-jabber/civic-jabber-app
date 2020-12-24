@@ -1,6 +1,7 @@
 import os
 
 import psycopg2
+from psycopg2.extras import RealDictCursor
 
 
 def connect():
@@ -28,7 +29,7 @@ def execute_sql(sql, connection, values=None, select=False, commit=True):
     """
     if not connection:
         connection = connect()
-    with connection.cursor() as cursor:
+    with connection.cursor(cursor_factory=RealDictCursor) as cursor:
         cursor.execute(sql, values)
         if select:
             return cursor.fetchall()
