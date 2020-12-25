@@ -57,7 +57,7 @@ def get_regulations(limit=25, offset=0, order_by="register_date", order="DESC"):
             end_date,
             register_date
         FROM civic_jabber.titles
-        ORDER BY {order_by}, id {order}
+        ORDER BY {order_by} {order}, id {order}
         OFFSET {offset}
         LIMIT {limit}
     """

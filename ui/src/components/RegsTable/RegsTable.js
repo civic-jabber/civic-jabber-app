@@ -33,30 +33,24 @@ const columns = [
   {
     id: "start_date",
     label: "Start Date",
-    minWidth: 170,
-    align: "left",
-  },
-  {
-    id: "end_date",
-    label: "End Date",
-    minWidth: 170,
+    minWidth: 80,
     align: "left",
   },
   {
     id: "register_date",
-    label: "Date",
-    minWidth: 170,
+    label: "Register Date",
+    minWidth: 80,
     align: "left",
   },
 ];
 
 const useStyles = makeStyles({
   root: {
-    width: "95%",
+    width: "100%",
     margin: "auto",
   },
   container: {
-    maxHeight: 440,
+    maxHeight: 800,
   },
 });
 
