@@ -1,12 +1,27 @@
-from typing import Optional
+import datetime
+from typing import List, Optional
 
 from fastapi import FastAPI, Query, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 import civic_jabber_app.utils.database as database
 
 app = FastAPI()
+
+
+class RegulationResponse(BaseModel):
+    id: str
+    state: str
+    issue: str
+    title: str
+    description: str
+    status: str
+    link: str
+    start_date: datetime.datetime
+    end_date: datetime.datetime
+    register_date: datetime.datetime
 
 
 def get_regulations(limit=25, offset=0, order_by="register_date", order="DESC"):
@@ -51,7 +66,7 @@ def get_regulations(limit=25, offset=0, order_by="register_date", order="DESC"):
     return jsonable_encoder([dict(result) for result in results])
 
 
-@app.get("/api/v1/regulations")
+@app.get("/api/v1/regulations", response_model=List[RegulationResponse])
 async def regulations(
     limit: Optional[int] = Query(25),
     page: Optional[int] = Query(1),
