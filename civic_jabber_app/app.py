@@ -1,6 +1,5 @@
 import datetime
 from typing import List, Optional
-import regex as re
 
 from fastapi import FastAPI, Query, status
 from fastapi.encoders import jsonable_encoder
@@ -26,9 +25,6 @@ class RegulationResponse(BaseModel):
 
 
 def get_regulations(limit=25, offset=0, order_by="register_date", order="DESC"):
-    if order.upper() not in ["ASC", "DESC"]:
-        raise ValueError("Valid options for order as ASC and DESC")
-
     connection = database.connect()
     sql = f"""
         SELECT DISTINCT
@@ -56,12 +52,16 @@ def get_regulations(limit=25, offset=0, order_by="register_date", order="DESC"):
     return jsonable_encoder([dict(result) for result in results])
 
 
+ORDER_BY_OPTIONS = "^(issue|volume|title|description|(start|end|register)_date)$"
+ORDER_OPTIONS = "^(?i)(asc|desc)$"
+
+
 @app.get("/api/v1/regulations", response_model=List[RegulationResponse])
 async def regulations(
     limit: Optional[int] = Query(25),
     page: Optional[int] = Query(1),
-    order_by: Optional[str] = Query("register_date", max_length=25),
-    order: Optional[str] = Query("DESC", regex="^(?i)(asc|desc)$"),
+    order_by: Optional[str] = Query("register_date", regex=ORDER_BY_OPTIONS),
+    order: Optional[str] = Query("DESC", regex=ORDER_OPTIONS),
 ):
     """Queries the Postgres table for regulations
 

@@ -48,3 +48,12 @@ def test_get_regulations(monkeypatch):
     response = client.get("/api/v1/regulations")
     assert response.status_code == 200
     assert response.json() == jsonable_encoder(MOCK_REGULATIONS)
+
+
+def test_get_regulations_returns_422_with_bad_input(monkeypatch):
+    monkeypatch.setattr(
+        database, "execute_sql", lambda *args, **kwargs: MOCK_REGULATIONS
+    )
+    monkeypatch.setattr(database, "connect", lambda *args, **kwargs: "connection")
+    response = client.get("/api/v1/regulations?order_by=lobsters")
+    assert response.status_code == 422
