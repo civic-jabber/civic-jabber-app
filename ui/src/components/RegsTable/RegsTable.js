@@ -10,76 +10,45 @@ import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
 
 const columns = [
-  { id: "title", label: "Title", minWidth: 170 },
+  { id: "title", label: "Title", minWidth: 100 },
   { id: "status", label: "Status", minWidth: 100 },
   {
     id: "description",
     label: "Description",
     minWidth: 170,
-    align: "right",
-    format: (value) => value.toLocaleString("en-US"),
-  },
-  {
-    id: "issue",
-    label: "Issue",
-    minWidth: 170,
-    align: "right",
-    format: (value) => value.toLocaleString("en-US"),
+    align: "left",
   },
   {
     id: "volume",
     label: "Volume",
-    minWidth: 170,
+    minWidth: 50,
+    align: "left",
+  },
+  {
+    id: "issue",
+    label: "Issue",
+    minWidth: 50,
     align: "right",
-    format: (value) => value.toFixed(2),
   },
   {
     id: "start_date",
     label: "Start Date",
     minWidth: 170,
-    align: "right",
-    format: (value) => value.toFixed(2),
+    align: "left",
   },
   {
     id: "end_date",
     label: "End Date",
     minWidth: 170,
-    align: "right",
-    format: (value) => value.toFixed(2),
+    align: "left",
   },
   {
-    id: "effective_date",
-    label: "Effective Date",
+    id: "register_date",
+    label: "Date",
     minWidth: 170,
-    align: "right",
-    format: (value) => value.toFixed(2),
+    align: "left",
   },
 ];
-
-function createData(
-  title,
-  description,
-  status,
-  issue,
-  volume,
-  start_date,
-  end_date,
-  register_date,
-  link
-) {
-  return {
-    title,
-    description,
-    status,
-    issue,
-    volume,
-    start_date,
-    end_date,
-    register_date,
-  };
-}
-
-const rows = [];
 
 const useStyles = makeStyles({
   root: {
@@ -91,7 +60,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function RegsTable() {
+export default function RegsTable(props) {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -123,7 +92,7 @@ export default function RegsTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows
+            {props.rows
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row) => {
                 return (
@@ -147,7 +116,7 @@ export default function RegsTable() {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"
-        count={rows.length}
+        count={props.rows.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onChangePage={handleChangePage}
