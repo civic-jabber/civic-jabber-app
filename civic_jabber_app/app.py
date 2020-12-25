@@ -2,6 +2,7 @@ import datetime
 from typing import List, Optional
 
 from fastapi import FastAPI, Query, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -9,6 +10,18 @@ from pydantic import BaseModel
 import civic_jabber_app.utils.database as database
 
 app = FastAPI()
+
+origins = [
+    "http://localhost*",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class RegulationResponse(BaseModel):
