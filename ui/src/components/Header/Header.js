@@ -4,6 +4,7 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
+import flag from "./us_flag.svg";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -26,7 +27,9 @@ export default function Header() {
             className={classes.menuButton}
             color="inherit"
             aria-label="menu"
-          ></IconButton>
+          >
+            <img src={flag} height={40} alt="US Flag" />
+          </IconButton>
           <Typography variant="h6" color="inherit">
             Civic Jabber
           </Typography>

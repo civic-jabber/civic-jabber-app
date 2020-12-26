@@ -41,6 +41,8 @@ class Regulations extends Component {
   render() {
     return (
       <div>
+        <h2>Virginia Regulations</h2>
+        <hr />
         <RegsTable rows={this.state.rows} />
       </div>
     );

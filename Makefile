@@ -56,3 +56,6 @@ npm-install:
 
 run-ui-local:
 	cd ui && npm run start
+
+run-backend-local:
+	cd civic_jabber_app && uvicorn app:app --reload
