@@ -25,8 +25,9 @@ ORDER_BY_OPTIONS = "^(issue|volume|title|description|(start|end|register)_date)$
 ORDER_OPTIONS = "^(?i)(asc|desc)$"
 
 
-@app.get("/api/v1/regulations", response_model=List[regs.RegulationResponse])
+@app.get("/v1/regulations", response_model=List[regs.RegulationResponse])
 async def regulations(
+    state: str = Query(None, min_length=2, max_length=2),
     limit: Optional[int] = Query(25),
     page: Optional[int] = Query(1),
     order_by: Optional[str] = Query("register_date", regex=ORDER_BY_OPTIONS),
@@ -50,10 +51,9 @@ async def regulations(
     regulations : list
         A list of dictionary objects representing the regulations
     """
-    offset = (page - 1) * limit
     try:
         msg = regs.get_regulations(
-            limit=limit, offset=offset, order_by=order_by, order=order
+            state=state.lower(), limit=limit, page=page, order_by=order_by, order=order
         )
         status_code = status.HTTP_200_OK
     except ValueError:

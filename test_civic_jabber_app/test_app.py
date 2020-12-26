@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 from civic_jabber_app.app import app
 import civic_jabber_app.utils.database as database
+import civic_jabber_app.regulations as regs
 
 
 client = TestClient(app)
@@ -44,10 +45,16 @@ def test_get_regulations(monkeypatch):
     monkeypatch.setattr(
         database, "execute_sql", lambda *args, **kwargs: MOCK_REGULATIONS
     )
+    monkeypatch.setattr(regs, "count_regulations", lambda *args, **kwargs: 25)
     monkeypatch.setattr(database, "connect", lambda *args, **kwargs: "connection")
-    response = client.get("/api/v1/regulations")
+    response = client.get("/v1/regulations?state=va&page=1&limit=10")
     assert response.status_code == 200
-    assert response.json() == jsonable_encoder(MOCK_REGULATIONS)
+    assert response.json() == {
+        "results": jsonable_encoder(MOCK_REGULATIONS),
+        "count": 25,
+        "page": 1,
+        "limit": 10,
+    }
 
 
 def test_get_regulations_returns_422_with_bad_input(monkeypatch):
@@ -55,5 +62,5 @@ def test_get_regulations_returns_422_with_bad_input(monkeypatch):
         database, "execute_sql", lambda *args, **kwargs: MOCK_REGULATIONS
     )
     monkeypatch.setattr(database, "connect", lambda *args, **kwargs: "connection")
-    response = client.get("/api/v1/regulations?order_by=lobsters")
+    response = client.get("/v1/regulations?state=va&order_by=lobsters")
     assert response.status_code == 422

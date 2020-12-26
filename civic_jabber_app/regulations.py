@@ -19,15 +19,28 @@ class RegulationResponse(BaseModel):
     register_date: datetime.datetime
 
 
-def get_regulations(limit=25, offset=0, order_by="register_date", order="DESC"):
+def _group_by_query():
+    return """
+        SELECT
+            state,
+            title,
+            MAX(register_date) AS max_register_date,
+            MAX(id) as max_id
+        FROM civic_jabber.titles
+        GROUP BY state, title
+    """
+
+
+def get_regulations(state, limit=25, page=1, order_by="register_date", order="DESC"):
     connection = database.connect()
+    offset = (page - 1) * limit
     sql = f"""
         SELECT DISTINCT
             id,
-            state,
+            latest.state,
             issue,
             volume,
-            title,
+            latest.title,
             description,
             status,
             link,
@@ -38,10 +51,31 @@ def get_regulations(limit=25, offset=0, order_by="register_date", order="DESC"):
             END as start_date,
             end_date,
             register_date
-        FROM civic_jabber.titles
+        FROM civic_jabber.titles as titles
+        INNER JOIN (
+            {_group_by_query()}
+        ) as latest
+        ON latest.max_id = titles.id
         ORDER BY {order_by} {order}, id {order}
         OFFSET {offset}
         LIMIT {limit}
     """
     results = database.execute_sql(sql, connection, select=True)
-    return jsonable_encoder([dict(result) for result in results])
+    return {
+        "results": jsonable_encoder([dict(result) for result in results]),
+        "count": count_regulations(connection=connection),
+        "page": page,
+        "limit": limit,
+    }
+
+
+def count_regulations(connection=None):
+    connection = database.connect() if not connection else connection
+    sql = f"""
+        SELECT COUNT(*) as result_size
+        FROM (
+            {_group_by_query()}
+        ) as latest
+    """
+    results = database.execute_sql(sql, connection, select=True)
+    return results[0]["result_size"]
