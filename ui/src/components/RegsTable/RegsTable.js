@@ -60,7 +60,6 @@ export default function RegsTable(props) {
     props.fetch(props.stateCode, page, limit);
   };
   let page = props.page - 1;
-  let rowsPerPage = props.limit;
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage + 1, props.limit);
