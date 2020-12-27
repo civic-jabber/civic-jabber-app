@@ -52,6 +52,8 @@ async def regulations(
         A list of dictionary objects representing the regulations
     """
     try:
+        if not state:
+            raise ValueError("State is a required query parameter!")
         msg = regs.get_regulations(
             state=state.lower(), limit=limit, page=page, order_by=order_by, order=order
         )

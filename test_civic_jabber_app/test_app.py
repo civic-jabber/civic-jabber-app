@@ -64,3 +64,22 @@ def test_get_regulations_returns_422_with_bad_input(monkeypatch):
     monkeypatch.setattr(database, "connect", lambda *args, **kwargs: "connection")
     response = client.get("/v1/regulations?state=va&order_by=lobsters")
     assert response.status_code == 422
+
+
+def test_get_regulations_returns_400_without_state(monkeypatch):
+    monkeypatch.setattr(
+        database, "execute_sql", lambda *args, **kwargs: MOCK_REGULATIONS
+    )
+    monkeypatch.setattr(regs, "count_regulations", lambda *args, **kwargs: 25)
+    monkeypatch.setattr(database, "connect", lambda *args, **kwargs: "connection")
+    response = client.get("/v1/regulations")
+    assert response.status_code == 400
+
+
+def test_get_regulations_returns_400_with_value_error(monkeypatch):
+    def mock_get_regulations(*args, **kwargs):
+        raise ValueError("What a horrible error!")
+
+    monkeypatch.setattr(regs, "get_regulations", mock_get_regulations)
+    response = client.get("/v1/regulations?state=va")
+    assert response.status_code == 400
