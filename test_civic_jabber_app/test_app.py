@@ -1,3 +1,4 @@
+from copy import deepcopy
 import datetime
 
 from fastapi.encoders import jsonable_encoder
@@ -48,9 +49,15 @@ def test_get_regulations(monkeypatch):
     monkeypatch.setattr(regs, "count_regulations", lambda *args, **kwargs: 25)
     monkeypatch.setattr(database, "connect", lambda *args, **kwargs: "connection")
     response = client.get("/v1/regulations?state=va&page=1&limit=10")
+
+    expected_results = deepcopy(MOCK_REGULATIONS)
+    for result in expected_results:
+        history = [deepcopy(result)]
+        result["history"] = history
+
     assert response.status_code == 200
     assert response.json() == {
-        "results": jsonable_encoder(MOCK_REGULATIONS),
+        "results": jsonable_encoder(expected_results),
         "count": 25,
         "page": 1,
         "limit": 10,

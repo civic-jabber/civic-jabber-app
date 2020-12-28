@@ -31,16 +31,14 @@ def _group_by_query():
     """
 
 
-def get_regulations(state, limit=25, page=1, order_by="register_date", order="DESC"):
-    connection = database.connect()
-    offset = (page - 1) * limit
-    sql = f"""
-        SELECT DISTINCT
+def _base_query():
+    return """
+        SELECT
             id,
-            latest.state,
+            titles.state,
             issue,
             volume,
-            latest.title,
+            titles.title,
             description,
             status,
             link,
@@ -52,6 +50,14 @@ def get_regulations(state, limit=25, page=1, order_by="register_date", order="DE
             end_date,
             register_date
         FROM civic_jabber.titles as titles
+    """
+
+
+def get_regulations(state, limit=25, page=1, order_by="register_date", order="DESC"):
+    connection = database.connect()
+    offset = (page - 1) * limit
+    sql = f"""
+        {_base_query()}
         INNER JOIN (
             {_group_by_query()}
         ) as latest
@@ -61,8 +67,18 @@ def get_regulations(state, limit=25, page=1, order_by="register_date", order="DE
         LIMIT {limit}
     """
     results = database.execute_sql(sql, connection, select=True)
+    titles = [result["title"] for result in results]
+    histories = get_status_histories(titles, state, connection=connection)
+
+    results = jsonable_encoder([dict(result) for result in results])
+    final_results = list()
+    for result in results:
+        final_result = jsonable_encoder(dict(result))
+        final_result["history"] = jsonable_encoder(histories[result["title"]])
+        final_results.append(final_result)
+
     return {
-        "results": jsonable_encoder([dict(result) for result in results]),
+        "results": final_results,
         "count": count_regulations(connection=connection),
         "page": page,
         "limit": limit,
@@ -79,3 +95,35 @@ def count_regulations(connection=None):
     """
     results = database.execute_sql(sql, connection, select=True)
     return results[0]["result_size"]
+
+
+def get_status_histories(titles, state, connection=None):
+    """Returns the status histories for each of the specified titles
+
+    Parameters
+    ----------
+    titles : list
+        A list of titles
+    state : str
+        The state the titles are associated with
+
+    Returns
+    -------
+    histories : dict
+        A dictionary where the keys are titles and the entries are lists that show the
+        status history for the title
+    """
+    connection = database.connect() if not connection else connection
+    where_clause = ", ".join([f"'{title}'" for title in titles])
+    sql = f"""
+       {_base_query()}
+       WHERE title in ({where_clause})
+       ORDER BY title, register_date DESC
+    """
+    results = database.execute_sql(sql, connection, select=True)
+    histories = dict()
+    for result in results:
+        title_history = histories.get(result["title"], [])
+        title_history.append(dict(result))
+        histories[result["title"]] = title_history
+    return histories
